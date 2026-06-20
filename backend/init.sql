@@ -1,0 +1,2 @@
+-- 空文件，表结构由 Prisma Migrate 创建
+-- 种子数据由 prisma/seed.js 写入

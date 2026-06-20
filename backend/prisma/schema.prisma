@@ -1,0 +1,50 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Product {
+  id           Int        @id @default(autoincrement())
+  name         String
+  category     String
+  unit         String
+  price        Decimal    @db.Decimal(10, 2)
+  hasExpiry    Boolean    @default(false)
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  stockItems   StockItem[]
+  transactions Transaction[]
+}
+
+model StockItem {
+  id          Int       @id @default(autoincrement())
+  productId   Int
+  quantity    Int
+  batchNo     String?
+  expiryDate  DateTime?
+  purchasePrice Decimal @db.Decimal(10, 2)
+  inDate      DateTime  @default(now())
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  product     Product   @relation(fields: [productId], references: [id])
+  transactions Transaction[]
+}
+
+model Transaction {
+  id          Int       @id @default(autoincrement())
+  type        String
+  productId   Int
+  stockItemId Int?
+  quantity    Int
+  unitPrice   Decimal   @db.Decimal(10, 2)
+  totalPrice  Decimal   @db.Decimal(10, 2)
+  remark      String?
+  operator    String?
+  createdAt   DateTime  @default(now())
+  product     Product   @relation(fields: [productId], references: [id])
+  stockItem   StockItem? @relation(fields: [stockItemId], references: [id])
+}
