@@ -61,8 +61,8 @@ const productService = {
       by: ['productId'],
       _sum: { quantity: true },
       having: {
-        _sum: {
-          quantity: {
+        quantity: {
+          _sum: {
             gt: 0
           }
         }
