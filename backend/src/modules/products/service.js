@@ -29,9 +29,16 @@ const productService = {
   },
 
   async update(id, data) {
+    const allowedData = {
+      name: data.name,
+      category: data.category,
+      unit: data.unit,
+      price: data.price,
+      hasExpiry: data.hasExpiry
+    }
     return prisma.product.update({
       where: { id: Number(id) },
-      data
+      data: allowedData
     })
   },
 
@@ -53,7 +60,13 @@ const productService = {
     const items = await prisma.stockItem.groupBy({
       by: ['productId'],
       _sum: { quantity: true },
-      having: { quantity: { _gt: 0 } }
+      having: {
+        _sum: {
+          quantity: {
+            gt: 0
+          }
+        }
+      }
     })
     const productIds = items.map(i => i.productId)
     const products = await prisma.product.findMany({

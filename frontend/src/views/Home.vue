@@ -135,19 +135,21 @@ const filteredStock = computed(() => {
 const formatDate = (d) => d ? dayjs(d).format('YYYY-MM-DD') : '-'
 
 async function loadAll() {
-  try {
-    const [stockRes, expiryRes, dailyRes] = await Promise.all([
-      productApi.stockSummary(),
-      expiryApi.warning(30),
-      transactionApi.daily()
-    ])
-    stockList.value = stockRes.data
-    expiryList.value = expiryRes.data
+  const [stockRes, expiryRes, dailyRes] = await Promise.allSettled([
+    productApi.stockSummary(),
+    expiryApi.warning(30),
+    transactionApi.daily()
+  ])
+  if (stockRes.status === 'fulfilled') {
+    stockList.value = stockRes.value.data
     stats.value.productCount = stockList.value.length
-    stats.value.inCount = dailyRes.data.inCount
-    stats.value.outCount = dailyRes.data.outCount
-  } catch (e) {
-    console.error(e)
+  }
+  if (expiryRes.status === 'fulfilled') {
+    expiryList.value = expiryRes.value.data
+  }
+  if (dailyRes.status === 'fulfilled') {
+    stats.value.inCount = dailyRes.value.data.inCount
+    stats.value.outCount = dailyRes.value.data.outCount
   }
 }
 

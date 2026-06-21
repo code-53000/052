@@ -193,12 +193,16 @@ async function loadProducts() {
 }
 
 async function loadStock() {
-  const [summaryRes, itemsRes] = await Promise.all([
+  const [summaryRes, itemsRes] = await Promise.allSettled([
     productApi.stockSummary(),
     inventoryApi.stockItems()
   ])
-  stockProducts.value = summaryRes.data
-  stockItems.value = itemsRes.data
+  if (summaryRes.status === 'fulfilled') {
+    stockProducts.value = summaryRes.value.data
+  }
+  if (itemsRes.status === 'fulfilled') {
+    stockItems.value = itemsRes.value.data
+  }
 }
 
 async function doStockIn() {
